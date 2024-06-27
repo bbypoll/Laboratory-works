@@ -1,0 +1,114 @@
+#include <iostream>
+#include <chrono>
+#include <random>
+const int N = 10000;
+
+using namespace std;
+
+class Timer
+{
+private:
+    using clock_t = std::chrono::high_resolution_clock;
+    using second_t = std::chrono::duration<double, std::ratio<1> >;
+    std::chrono::time_point<clock_t> m_beg;
+public:
+    Timer() : m_beg(clock_t::now())
+    {
+    }
+    void reset()
+    {
+        m_beg = clock_t::now();
+    }
+    double elapsed() const
+    {
+        return std::chrono::duration_cast<second_t>(clock_t::now() - m_beg).count();
+    }
+};
+
+int search(int y, int n, int k, int* x) {
+    if (k < x[y]) {
+        return -1;
+    }
+    if (k == x[y]) {
+        return y;
+    }
+    if (k > x[n]) {
+        return -1;
+    }
+    int a = y;
+    int b = n;
+    int c;
+    while (a + 1 < b) {
+        c = (a + b) / 2;
+        if (k > x[c]) {
+            a = c;
+        }
+        else {
+            b = c;
+        }
+    }
+    if (x[b] == k) {
+        return b;
+    }
+    else {
+        return -1;
+    }
+}
+
+
+int prostoysearch(int* x, int n, int k) {
+    for (int i = 0; i < n; i++) {
+        if (x[i] == k) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+void quicksort(int a, int b, int* x) {
+    if (a >= b) {
+        return;
+    }
+    int m, k, l, r;
+    m = (rand() * rand()) % (b - a + 1) + a;
+    k = x[m];
+    l = a - 1;
+    r = b + 1;
+    while (1) {
+        do {
+            l = l + 1;
+        } while (x[l] < k);
+
+        do {
+            r = r - 1;
+        } while (x[r] > k);
+        if (l >= r)
+            break;
+
+        std::swap(x[l], x[r]);
+    }
+    r = l;
+    l = l - 1;
+    quicksort(a, l, x);
+    quicksort(r, b, x);
+}
+
+int main()
+{
+    setlocale(LC_ALL, "Russian");
+    cout << "Задание 1" <<endl;
+    cout << "Введите число (от 0 до 100)" <<endl;
+    int mas[N];
+    for (int i = 0; i < N; i++) {
+        mas[i] = rand() % 101;
+    }
+    quicksort(0, N - 1, mas);
+    int j;
+    cin >> j;
+    Timer t;
+    int f = search(0, N - 1, j, mas);
+    cout << "Binary search: " << t.elapsed() << '\n';
+    Timer v;
+    f = prostoysearch(mas, N, j);
+    cout << "Search by selection: " << v.elapsed() << '\n';
+    cout << "" << endl;
